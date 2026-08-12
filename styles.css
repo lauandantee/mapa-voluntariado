@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --bg:#f5f3ee; --paper:#fffdf8; --ink:#1f2923; --muted:#68736c; --line:#dfe4de;
+  --accent:#1b6b4c; --accent-2:#dcebe2; --danger:#ad4b42; --shadow:0 18px 50px rgba(29,42,34,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"DM Sans",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+body{padding:24px}
+h1,h2,h3{font-family:"Space Grotesk",sans-serif;letter-spacing:-.03em;margin:0}
+p{margin:.45rem 0;line-height:1.5}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.topbar{max-width:1440px;margin:0 auto 18px;display:flex;justify-content:space-between;gap:24px;align-items:flex-end}
+.topbar h1{font-size:clamp(28px,4vw,48px);margin-top:4px}
+.topbar p{max-width:720px;color:var(--muted)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent)}
+.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px}
+.map-shell,.panel{background:var(--paper);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
+.map-shell{position:relative;min-height:720px}
+#map{height:100%;min-height:720px}
+.map-hint{position:absolute;z-index:500;left:16px;bottom:16px;padding:10px 12px;border-radius:12px;background:rgba(255,253,248,.92);backdrop-filter:blur(10px);font-size:12px;color:var(--muted);max-width:460px;border:1px solid var(--line)}
+.panel{padding:18px;max-height:720px;overflow:auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.stats div{background:#f0f4ef;padding:12px;border-radius:15px}
+.stats strong{display:block;font-size:24px;font-family:"Space Grotesk"}
+.stats span{font-size:11px;color:var(--muted)}
+.filters{display:grid;gap:10px;border-bottom:1px solid var(--line);padding-bottom:16px}
+label{display:grid;gap:6px;font-size:12px;font-weight:600;color:#475149}
+input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,107,76,.1)}
+.point-list{display:grid;gap:8px;margin-top:16px}
+.point-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;transition:.15s}
+.point-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.05)}
+.point-card h3{font-size:16px}
+.point-card .meta{font-size:12px;color:var(--muted);margin-top:5px}
+.badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:700;margin-bottom:8px;background:var(--accent-2);color:var(--accent)}
+.badge.acopio{background:#efe7da;color:#8d5a1a}
+.btn{border:0;border-radius:999px;padding:11px 16px;font-weight:700}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:#eef1ed;color:var(--ink)}
+.icon-btn{position:absolute;right:14px;top:14px;width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:50%;font-size:24px;line-height:1}
+.dialog{border:0;padding:0;background:transparent;max-width:min(780px,calc(100vw - 24px));width:100%}
+.dialog::backdrop{background:rgba(10,18,13,.45);backdrop-filter:blur(3px)}
+.dialog-card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+.dialog-card.wide{max-width:840px}
+.dialog-head{margin-bottom:18px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.detail{padding:12px;background:#f2f5f1;border-radius:14px}
+.detail .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.detail .v{margin-top:5px;font-size:14px;white-space:pre-wrap}
+.comments{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
+.comments h3{font-size:18px}
+.comment{padding:12px 0;border-bottom:1px solid var(--line)}
+.comment:last-child{border-bottom:0}
+.comment .who{font-size:12px;font-weight:700}
+.comment .when{font-size:11px;color:var(--muted)}
+.comment .body{margin-top:6px;font-size:14px;white-space:pre-wrap}
+.comment-form{margin-top:14px;display:grid;gap:9px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-grid .full{grid-column:1/-1}
+.coordinate-picker{border:1px solid var(--line);border-radius:16px;padding:14px;background:#f6f8f5}
+.picker-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.picker-head span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.coords{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.form-actions{display:flex;justify-content:flex-end;gap:8px}
+.form-status{font-size:13px;color:var(--accent);min-height:18px}
+.honeypot{position:absolute;left:-10000px}
+.toast{position:fixed;right:20px;bottom:20px;background:#202a24;color:#fff;padding:12px 14px;border-radius:12px;opacity:0;pointer-events:none;transform:translateY(8px);transition:.2s;z-index:1000}
+.toast.show{opacity:1;transform:none}
+.empty{padding:24px 8px;text-align:center;color:var(--muted);font-size:13px}
+.popup-title{font:700 17px/1.2 "Space Grotesk",sans-serif;margin-bottom:7px}
+.popup-meta{font-size:12px;color:#657067;line-height:1.55}
+.popup-link{display:inline-block;margin-top:9px;color:var(--accent);font-weight:700;text-decoration:none}
+.marker-label{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;border:3px solid #fff;box-shadow:0 3px 14px rgba(0,0,0,.2);font-size:12px;font-weight:800}
+.marker-label.acopio{background:#8d5a1a}
+@media (max-width:1020px){
+  body{padding:12px}.topbar{align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}
+  .map-shell,#map{min-height:560px}.panel{max-height:none}.dialog-card{padding:18px}
+}
+@media (max-width:640px){
+  .form-grid,.detail-grid{grid-template-columns:1fr}.topbar .btn{width:100%}
+}

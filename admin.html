@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Administración · Mapa de voluntariado</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar"><div><div class="eyebrow">ADMINISTRACIÓN</div><h1>Revisión de aportes</h1><p>Aprueba o rechaza nuevos puntos y comentarios.</p></div></header>
+<main class="layout" style="grid-template-columns:1fr">
+<section class="panel" style="max-width:1100px;margin:auto">
+<div id="auth">
+  <form id="login-form" class="form-grid">
+    <label>Correo<input name="email" type="email" required></label>
+    <label>Contraseña<input name="password" type="password" required></label>
+    <div class="full form-actions"><button class="btn btn-primary">Entrar</button></div>
+    <p id="login-status" class="form-status full"></p>
+  </form>
+</div>
+<div id="dashboard" hidden>
+  <div class="stats">
+    <div><strong id="pending-points">0</strong><span>puntos pendientes</span></div>
+    <div><strong id="pending-comments">0</strong><span>comentarios pendientes</span></div>
+    <div><strong id="approved-points">0</strong><span>puntos aprobados</span></div>
+  </div>
+  <h2>Puntos</h2><div id="points-table"></div>
+  <h2 style="margin-top:28px">Comentarios</h2><div id="comments-table"></div>
+</div>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const {createClient}=window.supabase; const c=window.APP_CONFIG||{};
+const sb=createClient(c.SUPABASE_URL,c.SUPABASE_PUBLISHABLE_KEY);
+const $=s=>document.querySelector(s); const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+async function load(){
+ const {data:points,error:pe}=await sb.from("points").select("*").order("created_at",{ascending:false});
+ const {data:comments,error:ce}=await sb.from("comments").select("*,points(name)").order("created_at",{ascending:false});
+ if(pe||ce){$("#login-status").textContent="Sin permiso. Verifica que este usuario esté en public.admins.";return;}
+ const pp=points.filter(x=>x.status==="pending"), cp=comments.filter(x=>x.status==="pending");
+ $("#pending-points").textContent=pp.length; $("#pending-comments").textContent=cp.length; $("#approved-points").textContent=points.filter(x=>x.status==="approved").length;
+ $("#points-table").innerHTML=points.map(x=>`<div class="point-card"><span class="badge">${esc(x.status)}</span><h3>${esc(x.name)}</h3><div class="meta">${esc(x.address)} · ${esc(x.category)}</div><div style="margin-top:10px;display:flex;gap:8px">${x.status==="pending"?`<button class="btn btn-primary" data-p="${x.id}" data-a="approved">Aprobar</button><button class="btn btn-secondary" data-p="${x.id}" data-a="rejected">Rechazar</button>`:`<button class="btn btn-secondary" data-p="${x.id}" data-a="pending">Ocultar</button>`}</div></div>`).join("")||"<p>No hay puntos.</p>";
+ $("#comments-table").innerHTML=comments.map(x=>`<div class="point-card"><span class="badge">${esc(x.status)}</span><h3>${esc(x.points?.name||"Punto")}</h3><div class="meta">${esc(x.author_name||"Anónimo")}</div><p>${esc(x.body)}</p><div style="display:flex;gap:8px">${x.status==="pending"?`<button class="btn btn-primary" data-c="${x.id}" data-a="approved">Aprobar</button><button class="btn btn-secondary" data-c="${x.id}" data-a="rejected">Rechazar</button>`:`<button class="btn btn-secondary" data-c="${x.id}" data-a="pending">Ocultar</button>`}</div></div>`).join("")||"<p>No hay comentarios.</p>";
+ document.querySelectorAll("[data-p]").forEach(b=>b.onclick=async()=>{await sb.from("points").update({status:b.dataset.a}).eq("id",b.dataset.p);load()});
+ document.querySelectorAll("[data-c]").forEach(b=>b.onclick=async()=>{await sb.from("comments").update({status:b.dataset.a}).eq("id",b.dataset.c);load()});
+}
+$("#login-form").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const {error}=await sb.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});if(error)$("#login-status").textContent=error.message;else{$("#auth").hidden=true;$("#dashboard").hidden=false;load();}};
+</script>
+</body></html>
