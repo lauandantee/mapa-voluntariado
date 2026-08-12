@@ -1,130 +1,110 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Mapa comunitario de puntos de voluntariado y acopio.">
-  <title>Mapa de voluntariado</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voluntariado y acopio en Bogotá</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --bg:#f5f3ee; --paper:#fffdf8; --ink:#1f2923; --muted:#68736c; --line:#dfe4de;
+  --accent:#1b6b4c; --accent-2:#dcebe2; --danger:#ad4b42; --shadow:0 18px 50px rgba(29,42,34,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"DM Sans",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+body{padding:24px}
+h1,h2,h3{font-family:"Space Grotesk",sans-serif;letter-spacing:-.03em;margin:0}
+p{margin:.45rem 0;line-height:1.5}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.topbar{max-width:1440px;margin:0 auto 18px;display:flex;justify-content:space-between;gap:24px;align-items:flex-end}
+.topbar h1{font-size:clamp(28px,4vw,48px);margin-top:4px}
+.topbar p{max-width:720px;color:var(--muted)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent)}
+.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px}
+.map-shell,.panel{background:var(--paper);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
+.map-shell{position:relative;min-height:720px}
+#map{height:100%;min-height:720px}
+.map-hint{position:absolute;z-index:500;left:16px;bottom:16px;padding:10px 12px;border-radius:12px;background:rgba(255,253,248,.92);backdrop-filter:blur(10px);font-size:12px;color:var(--muted);max-width:460px;border:1px solid var(--line)}
+.panel{padding:18px;max-height:720px;overflow:auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.stats div{background:#f0f4ef;padding:12px;border-radius:15px}
+.stats strong{display:block;font-size:24px;font-family:"Space Grotesk"}
+.stats span{font-size:11px;color:var(--muted)}
+.filters{display:grid;gap:10px;border-bottom:1px solid var(--line);padding-bottom:16px}
+label{display:grid;gap:6px;font-size:12px;font-weight:600;color:#475149}
+input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,107,76,.1)}
+.point-list{display:grid;gap:8px;margin-top:16px}
+.point-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;transition:.15s}
+.point-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.05)}
+.point-card h3{font-size:16px}
+.point-card .meta{font-size:12px;color:var(--muted);margin-top:5px}
+.badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:700;margin-bottom:8px;background:var(--accent-2);color:var(--accent)}
+.badge.acopio{background:#efe7da;color:#8d5a1a}
+.btn{border:0;border-radius:999px;padding:11px 16px;font-weight:700}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:#eef1ed;color:var(--ink)}
+.icon-btn{position:absolute;right:14px;top:14px;width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:50%;font-size:24px;line-height:1}
+.dialog{border:0;padding:0;background:transparent;max-width:min(780px,calc(100vw - 24px));width:100%}
+.dialog::backdrop{background:rgba(10,18,13,.45);backdrop-filter:blur(3px)}
+.dialog-card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+.dialog-card.wide{max-width:840px}
+.dialog-head{margin-bottom:18px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.detail{padding:12px;background:#f2f5f1;border-radius:14px}
+.detail .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.detail .v{margin-top:5px;font-size:14px;white-space:pre-wrap}
+.comments{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
+.comments h3{font-size:18px}
+.comment{padding:12px 0;border-bottom:1px solid var(--line)}
+.comment:last-child{border-bottom:0}
+.comment .who{font-size:12px;font-weight:700}
+.comment .when{font-size:11px;color:var(--muted)}
+.comment .body{margin-top:6px;font-size:14px;white-space:pre-wrap}
+.comment-form{margin-top:14px;display:grid;gap:9px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-grid .full{grid-column:1/-1}
+.coordinate-picker{border:1px solid var(--line);border-radius:16px;padding:14px;background:#f6f8f5}
+.picker-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.picker-head span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.coords{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.form-actions{display:flex;justify-content:flex-end;gap:8px}
+.form-status{font-size:13px;color:var(--accent);min-height:18px}
+.honeypot{position:absolute;left:-10000px}
+.toast{position:fixed;right:20px;bottom:20px;background:#202a24;color:#fff;padding:12px 14px;border-radius:12px;opacity:0;pointer-events:none;transform:translateY(8px);transition:.2s;z-index:1000}
+.toast.show{opacity:1;transform:none}
+.empty{padding:24px 8px;text-align:center;color:var(--muted);font-size:13px}
+.popup-title{font:700 17px/1.2 "Space Grotesk",sans-serif;margin-bottom:7px}
+.popup-meta{font-size:12px;color:#657067;line-height:1.55}
+.popup-link{display:inline-block;margin-top:9px;color:var(--accent);font-weight:700;text-decoration:none}
+.marker-label{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;border:3px solid #fff;box-shadow:0 3px 14px rgba(0,0,0,.2);font-size:12px;font-weight:800}
+.marker-label.acopio{background:#8d5a1a}
+@media (max-width:1020px){
+  body{padding:12px}.topbar{align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}
+  .map-shell,#map{min-height:560px}.panel{max-height:none}.dialog-card{padding:18px}
+}
+@media (max-width:640px){
+  .form-grid,.detail-grid{grid-template-columns:1fr}.topbar .btn{width:100%}
+}
+
+/* standalone sizing */
+#map{height:720px;min-height:720px}
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <div class="eyebrow">MAPA COMUNITARIO</div>
-      <h1>Voluntariado y acopio en Bogotá</h1>
-      <p>Encuentra un punto, revisa sus condiciones y comparte nuevos lugares con la comunidad.</p>
-    </div>
-    <button class="btn btn-primary" id="open-add">＋ Agregar punto</button>
-  </header>
-
-  <main class="layout">
-    <section class="map-shell">
-      <div id="map"></div>
-      <div class="map-hint">Haz clic en un punto para ver la información. En el formulario puedes seleccionar la ubicación directamente en el mapa.</div>
-    </section>
-
-    <aside class="panel">
-      <div class="stats">
-        <div><strong id="point-count">0</strong><span>puntos</span></div>
-        <div><strong id="vol-count">0</strong><span>voluntariado</span></div>
-        <div><strong id="acopio-count">0</strong><span>acopio</span></div>
-      </div>
-
-      <div class="filters">
-        <label>
-          Buscar
-          <input id="search" type="search" placeholder="Nombre, dirección, contacto…">
-        </label>
-        <label>
-          Tipo
-          <select id="category">
-            <option value="all">Todos</option>
-            <option value="Voluntariado">Voluntariado</option>
-            <option value="Acopio">Acopio</option>
-          </select>
-        </label>
-      </div>
-
-      <div id="list" class="point-list"></div>
-    </aside>
-  </main>
-
-  <dialog id="point-dialog" class="dialog">
-    <div class="dialog-card">
-      <button class="icon-btn close-dialog" aria-label="Cerrar">×</button>
-      <div id="point-content"></div>
-    </div>
-  </dialog>
-
-  <dialog id="add-dialog" class="dialog">
-    <div class="dialog-card wide">
-      <button class="icon-btn close-dialog" aria-label="Cerrar">×</button>
-      <div class="dialog-head">
-        <div class="eyebrow">PARTICIPA</div>
-        <h2>Agregar un nuevo punto</h2>
-        <p>Los nuevos puntos quedan pendientes de revisión antes de aparecer públicamente.</p>
-      </div>
-
-      <form id="add-form" class="form-grid">
-        <label>Tipo*
-          <select name="category" required>
-            <option value="Voluntariado">Voluntariado</option>
-            <option value="Acopio">Acopio</option>
-          </select>
-        </label>
-        <label>Nombre del lugar*
-          <input name="name" required maxlength="160">
-        </label>
-        <label class="full">Dirección*
-          <input name="address" required maxlength="220">
-        </label>
-
-        <div class="full coordinate-picker">
-          <div class="picker-head">
-            <div>
-              <strong>Ubicación*</strong>
-              <span>Escribe coordenadas o haz clic en el mapa para colocarlas.</span>
-            </div>
-            <button type="button" class="btn btn-secondary" id="pick-location">Seleccionar en mapa</button>
-          </div>
-          <div class="coords">
-            <label>Latitud<input name="lat" id="lat" inputmode="decimal" required placeholder="4.65"></label>
-            <label>Longitud<input name="lon" id="lon" inputmode="decimal" required placeholder="-74.08"></label>
-          </div>
-        </div>
-
-        <label>Hora inicial<input name="start_time" type="time"></label>
-        <label>Hora final<input name="end_time" type="time"></label>
-        <label>Fechas / vigencia<input name="dates" maxlength="160"></label>
-        <label>Contacto<input name="contact" maxlength="160" placeholder="Teléfono, Instagram, correo…"></label>
-        <label>Personas que necesitan<input name="people_needed" maxlength="40" placeholder="Ej. 5"></label>
-        <label class="full">Requisitos
-          <textarea name="requirements" rows="3" maxlength="700"></textarea>
-        </label>
-        <label class="full">Descripción
-          <textarea name="description" rows="4" maxlength="1000"></textarea>
-        </label>
-        <label class="full">Tu nombre (opcional)
-          <input name="submitted_by" maxlength="80" placeholder="Puedes dejarlo anónimo">
-        </label>
-        <div class="honeypot"><label>No llenar<input name="website" autocomplete="off" tabindex="-1"></label></div>
-        <div class="form-actions full">
-          <button type="button" class="btn btn-secondary cancel-dialog">Cancelar</button>
-          <button class="btn btn-primary" type="submit">Enviar punto</button>
-        </div>
-        <p id="add-status" class="form-status full" role="status"></p>
-      </form>
-    </div>
-  </dialog>
-
-  <div class="toast" id="toast" role="status"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+<header class="topbar"><div><div class="eyebrow">MAPA COMUNITARIO</div><h1>Voluntariado y acopio en Bogotá</h1><p>Encuentra un punto, revisa sus condiciones y comparte nuevos lugares con la comunidad.</p></div><button class="btn btn-primary" id="open-add">＋ Agregar punto</button></header>
+<main class="layout"><section class="map-shell"><div id="map"></div><div class="map-hint">Haz clic en un punto para ver la información.</div></section><aside class="panel"><div class="stats"><div><strong id="point-count">0</strong><span>puntos</span></div><div><strong id="vol-count">0</strong><span>voluntariado</span></div><div><strong id="acopio-count">0</strong><span>acopio</span></div></div><div class="filters"><label>Buscar<input id="search" type="search" placeholder="Nombre, dirección, contacto…"></label><label>Tipo<select id="category"><option value="all">Todos</option><option value="Voluntariado">Voluntariado</option><option value="Acopio">Acopio</option></select></label></div><div id="list" class="point-list"></div></aside></main>
+<dialog id="point-dialog" class="dialog"><div class="dialog-card"><button class="icon-btn close-dialog" aria-label="Cerrar">×</button><div id="point-content"></div></div></dialog>
+<dialog id="add-dialog" class="dialog"><div class="dialog-card wide"><button class="icon-btn close-dialog" aria-label="Cerrar">×</button><div class="dialog-head"><div class="eyebrow">PARTICIPA</div><h2>Agregar un nuevo punto</h2><p>En esta versión de prueba el formulario funciona localmente.</p></div><form id="add-form" class="form-grid"><label>Tipo*<select name="category" required><option value="Voluntariado">Voluntariado</option><option value="Acopio">Acopio</option></select></label><label>Nombre del lugar*<input name="name" required></label><label class="full">Dirección*<input name="address" required></label><label>Latitud*<input name="lat" required></label><label>Longitud*<input name="lon" required></label><label>Hora inicial<input name="start_time" type="time"></label><label>Hora final<input name="end_time" type="time"></label><label class="full">Descripción<textarea name="description" rows="4"></textarea></label><div class="form-actions full"><button type="button" class="btn btn-secondary cancel-dialog">Cancelar</button><button class="btn btn-primary" type="submit">Agregar</button></div><p id="add-status" class="form-status full"></p></form></div></dialog>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const POINTS = [{"legacy_id": "1", "category": "Voluntariado", "name": "Parque La Reforma", "address": "Cl. 69f Sur #20, Bogotá", "lat": 4.513733244311091, "lon": -74.06457822550036, "start_time": "11:00", "end_time": "18:00", "dates": "Hasta el 14 de agosto", "contact": "30169834353022500000", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "2", "category": "Voluntariado", "name": "Centro Comercial Multiplaza - Sotano 2", "address": "Cra. 72 #17a-63, Bogotá", "lat": 4.662942194288313, "lon": -74.08929746261934, "start_time": "14:00", "end_time": "21:00", "dates": "Del 10 hasta el 17 de agosto", "contact": "IG @multiplazabogota", "people_needed": "5/5", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "3", "category": "Voluntariado", "name": "SAMU Norte Calle 134 Cruz Roja", "address": "Cra. 7b Bis #132 31, Usaquén, Bogotá, Cundinamarca", "lat": 4.7279545894257495, "lon": -74.00964658745828, "start_time": "08:00", "end_time": "21:00", "dates": "", "contact": "IG @cruzrojabogota", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "4", "category": "Voluntariado", "name": "Galería Aborigen", "address": "Cra. 6a #116-17, Usaquén, Bogotá, Cundinamarca", "lat": 4.704003359719706, "lon": -74.0020934872275, "start_time": "10:00", "end_time": "20:00", "dates": "", "contact": "IG @galeriaaborigen", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "5", "category": "Voluntariado", "name": "Palacio de Los Deportes - Cruz Roja", "address": "Ac 63 #59a-06, Bogotá", "lat": 4.66841715548629, "lon": -74.04054563385698, "start_time": "08:00", "end_time": "21:00", "dates": "", "contact": "IG @cruzrojabogota", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "6", "category": "Voluntariado", "name": "Estadio Nemesio Camacho El Campín", "address": "Carrera 30 y Calle 57, Teusaquillo, Bogotá", "lat": 4.646097056945061, "lon": -74.07636515017782, "start_time": "08:00", "end_time": "21:00", "dates": "12, 13 y 14 de Agosto", "contact": "3107859941", "people_needed": "1/5", "requirements": "Camisa blanca o amarilla y contactarse antes de llegar", "description": "Entrada por la carrera 30 al lado de la tienda de Millonarios", "status": "approved"}, {"legacy_id": "7", "category": "Voluntariado", "name": "Banco de Alimentos de Bogotá", "address": "Cl. 19A #32-50, Bogotá", "lat": 4.6210385407143715, "lon": -74.08851254395788, "start_time": "09:00", "end_time": "17:00", "dates": "12, 13 y 14 de Agosto", "contact": "3115763645", "people_needed": "1/5", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "8", "category": "Voluntariado", "name": "Cruz roja Bodega", "address": "Dg. 79b #62-53, Barrios Unidos, Bogotá", "lat": 4.679545755648608, "lon": -74.07695569576242, "start_time": "08:00", "end_time": "21:00", "dates": "", "contact": "IG @cruzrojabogota", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "9", "category": "Voluntariado", "name": "SAMU Alqueria Cruz Roja Bogotá", "address": "Av. 68 #31, Bogotá", "lat": 4.607313637363723, "lon": -74.12993351962776, "start_time": "08:00", "end_time": "21:00", "dates": "", "contact": "IG @cruzrojabogota", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "10", "category": "Voluntariado", "name": "Universidad de Bogotá Jorge Tadeo Lozano", "address": "Cra. 4 #22-61, Bogotá", "lat": 4.607962588895463, "lon": -74.0662506832623, "start_time": "08:00", "end_time": "18:00", "dates": "", "contact": "IG @utadeo.edu.co", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "11", "category": "Voluntariado", "name": "Uniminuto", "address": "Tv. 73a #82 61, Bogotá", "lat": 4.702581054977111, "lon": -74.09029540804349, "start_time": "08:00", "end_time": "16:00", "dates": "", "contact": "3174321703", "people_needed": "5/5", "requirements": "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=1hktZcHt20OiTp6UP97jlZ5x13KKd9FLmDdE5QCDthVURE5BWlEwVFUyNVlDS1lXN0NCWk40WFI4OS4u", "description": "Banco de ropa", "status": "approved"}, {"legacy_id": "12", "category": "Voluntariado", "name": "Salón Comunal Barrio Casa Rey", "address": "Cra. 14 R, Bogotá", "lat": 4.5196675866370315, "lon": -74.12082222682845, "start_time": "10:00", "end_time": "18:00", "dates": "13 y 14 de agosto", "contact": "3132539126", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "13", "category": "Voluntariado", "name": "Fundación Catalina Muñoz", "address": "Dg. 48 #19-16, Bogotá", "lat": 4.636938433848099, "lon": -74.07103513083017, "start_time": "08:00", "end_time": "18:00", "dates": "12, 13 y 14 de Agosto", "contact": "3002618537", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "14", "category": "Voluntariado", "name": "Cruz Roja Colombiana Seccional Cundinamarca y Bogotá", "address": "Cra. 23 #N° 73 - 19, Barrios Unidos, Bogotá, Cundinamarca", "lat": 4.664268397406716, "lon": -74.06525043893232, "start_time": "24 h", "end_time": "24 h", "dates": "", "contact": "IG @cruzrojabogota", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "15", "category": "Voluntariado", "name": "Centro de Salvamento Acuático Cruz Roja", "address": "Av. La Esmeralda #63-81, Bogotá", "lat": 4.666358518859422, "lon": -74.08507174038226, "start_time": "08:00", "end_time": "21:00", "dates": "", "contact": "IG @cruzrojabogota", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "16", "category": "Voluntariado", "name": "Vive Claro Distrito Cultural", "address": "Av. La Esmeralda #42-41, Bogotá", "lat": 4.649531077228136, "lon": -74.09630188082595, "start_time": "09:00", "end_time": "17:00", "dates": "del 12 hasta el 31 de agosto", "contact": "https://forms.cloud.microsoft/pages/responsepage.aspx?id=VHyXFlpS7Ey9K8HEea7b6wSRScHkLPtFsicCOZ0Y3u1UOUlMOUNDMDVOSVdaQ0VGRlU1U1AySE1GUi4u&fbclid=PAb21jcATooC1wZG9mAmV4dG4DYWVtAjExAHNydGMGYXBwX2lkDzU2NzA2NzM0MzM1MjQyNwABp7C18_rw90XfFhzqKdrVAqOGqumjWFe6viGoIahPl8BGpEp2Ys7tnJWmZTBr_aem_ulxRHxpIiPCCbp520Ji5hA&route=shorturl", "people_needed": "5/5", "requirements": "Inscripción", "description": "", "status": "approved"}, {"legacy_id": "17", "category": "Voluntariado", "name": "Human Construction - Local 1", "address": "Cra. 52a #134d-23, Bogotá", "lat": 4.722714098865295, "lon": -74.05686794512334, "start_time": "08:00", "end_time": "18:00", "dates": "12, 13 y 14 de Agosto", "contact": "3016441221", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "18", "category": "Voluntariado", "name": "Unicentro Bogotá Centro Comercial", "address": "Ak 15 #124-30, Usaquén, Bogotá", "lat": 4.703556811078048, "lon": -74.04134232833567, "start_time": "08:00", "end_time": "18:00", "dates": "12, 13 y 14 de Agosto", "contact": "IG @unicentrobogota", "people_needed": "1/5", "requirements": "Inscripción en administración, queda abajo en Banderas por la rampa.", "description": "", "status": "approved"}, {"legacy_id": "19", "category": "Voluntariado", "name": "Scientology fundacion", "address": "Cra 19 #100-21, Bogotá", "lat": 4.686633691725093, "lon": -74.05218220500069, "start_time": "09:30", "end_time": "21:00", "dates": "12, 13 y 14 de Agosto", "contact": "", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "20", "category": "Voluntariado", "name": "Punto por identificar (#20)", "address": "Cra. 6b Este #89-14", "lat": 4.500817910154906, "lon": -74.10229806995473, "start_time": "", "end_time": "", "dates": "", "contact": "", "people_needed": "", "requirements": "", "description": "El nombre no estaba registrado en el Excel original.", "status": "approved"}, {"legacy_id": "21", "category": "Voluntariado", "name": "Cruz roja SAMU Sur", "address": "Av. 68 #31-41, Bogotá", "lat": 4.607555618409338, "lon": -74.1312687301233, "start_time": "08:00", "end_time": "21:00", "dates": "", "contact": "IG @cruzrojabogota", "people_needed": "", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "22", "category": "Voluntariado", "name": "CRIC Nacional", "address": "Cra. 29 #39-92, Teusaquillo, Bogotá, Cundinamarca", "lat": 4.629206411271491, "lon": -74.07919251073949, "start_time": "09:00", "end_time": "21:00", "dates": "12 de Agosto", "contact": "", "people_needed": "5/5", "requirements": "", "description": "", "status": "approved"}, {"legacy_id": "23", "category": "Voluntariado", "name": "Punto por identificar (#23)", "address": "Av. Ciudad de Lima #32-50, Bogotá", "lat": 4.6203999005121315, "lon": -74.09007415921913, "start_time": "", "end_time": "", "dates": "", "contact": "", "people_needed": "", "requirements": "", "description": "El nombre no estaba registrado en el Excel original.", "status": "approved"}, {"legacy_id": "24", "category": "Voluntariado", "name": "Casa de la memoria", "address": "Cl. 161a #7 F 55, Bogotá", "lat": 4.737304681832439, "lon": -74.02573674929404, "start_time": "07:00", "end_time": "21:00", "dates": "", "contact": "", "people_needed": "", "requirements": "", "description": "Por favor llevar cajas", "status": "approved"}, {"legacy_id": "25", "category": "Voluntariado", "name": "Fundación FUNSAR", "address": "Cl. 59 Sur #80C-4, Bogotá", "lat": 4.610602242727065, "lon": -74.18079097609326, "start_time": "", "end_time": "", "dates": "", "contact": "https://docs.google.com/forms/d/e/1FAIpQLSdB_abs3mHI0QTLiUk48HRkFKoupTEBDHUWqrNbatKoIK-WwA/viewform", "people_needed": "5/5", "requirements": "Inscripción", "description": "", "status": "approved"}];
+const state={points:POINTS.map((p,i)=>({...p,id:'seed-'+(i+1)})),markers:new Map(),map:null};
+const $=s=>document.querySelector(s); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+function icon(cat){return L.divIcon({className:'',html:`<div class="marker-label ${cat==='Acopio'?'acopio':''}">${cat==='Acopio'?'A':'V'}</div>`,iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]});}
+function openPoint(p){$('#point-dialog').showModal(); $('#point-content').innerHTML=`<span class="badge ${p.category==='Acopio'?'acopio':''}">${esc(p.category)}</span><h2>${esc(p.name)}</h2><p style="color:var(--muted)">${esc(p.address)}</p><div class="detail-grid"><div class="detail"><div class="k">Horario</div><div class="v">${p.start_time&&p.end_time?esc(p.start_time)+'–'+esc(p.end_time):'No especificado'}</div></div><div class="detail"><div class="k">Fechas</div><div class="v">${esc(p.dates||'No especificadas')}</div></div><div class="detail"><div class="k">Contacto</div><div class="v">${esc(p.contact||'No especificado')}</div></div><div class="detail"><div class="k">Personas</div><div class="v">${esc(p.people_needed||'No especificado')}</div></div><div class="detail"><div class="k">Requisitos</div><div class="v">${esc(p.requirements||'No especificados')}</div></div><div class="detail"><div class="k">Descripción</div><div class="v">${esc(p.description||'Sin descripción')}</div></div></div>`;}
+function render(){state.markers.forEach(m=>m.remove());state.markers.clear(); const q=($('#search').value||'').toLowerCase().trim(); const cat=$('#category').value; const items=state.points.filter(p=>(!q||[p.name,p.address,p.contact,p.description,p.requirements].join(' ').toLowerCase().includes(q))&&(cat==='all'||p.category===cat)); $('#point-count').textContent=state.points.length; $('#vol-count').textContent=state.points.filter(p=>p.category==='Voluntariado').length; $('#acopio-count').textContent=state.points.filter(p=>p.category==='Acopio').length; $('#list').innerHTML=items.length?items.map(p=>`<article class="point-card" data-id="${esc(p.id)}"><span class="badge ${p.category==='Acopio'?'acopio':''}">${esc(p.category)}</span><h3>${esc(p.name)}</h3><div class="meta">${esc(p.address)}</div><div class="meta">${p.start_time&&p.end_time?esc(p.start_time)+'–'+esc(p.end_time):'Horario no especificado'}${p.dates?' · '+esc(p.dates):''}</div></article>`).join(''):'<div class="empty">No hay puntos.</div>'; $('#list').querySelectorAll('.point-card').forEach(c=>c.onclick=()=>{const p=state.points.find(x=>x.id===c.dataset.id); if(p){state.map.setView([p.lat,p.lon],14); openPoint(p);}}); items.forEach(p=>{const m=L.marker([Number(p.lat),Number(p.lon)],{icon:icon(p.category)}).addTo(state.map); m.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(p.address)}</div><a href="#" class="popup-link">Ver detalles →</a>`); m.on('popupopen',ev=>ev.popup.getElement().querySelector('.popup-link').onclick=e=>{e.preventDefault();openPoint(p)}); state.markers.set(p.id,m);});}
+function init(){if(!window.L){alert('No se pudo cargar Leaflet. Revisa tu conexión a internet.');return;} state.map=L.map('map').setView([4.65,-74.08],12);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(state.map);render();setTimeout(()=>state.map.invalidateSize(),300);}
+document.querySelectorAll('.close-dialog,.cancel-dialog').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#search').oninput=render;$('#category').onchange=render;$('#open-add').onclick=()=>$('#add-dialog').showModal();$('#add-form').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const p={id:'local-'+Date.now(),category:f.get('category'),name:String(f.get('name')),address:String(f.get('address')),lat:Number(f.get('lat')),lon:Number(f.get('lon')),start_time:f.get('start_time'),end_time:f.get('end_time'),dates:'',contact:'',people_needed:'',requirements:'',description:String(f.get('description'))};if(!Number.isFinite(p.lat)||!Number.isFinite(p.lon)){ $('#add-status').textContent='Latitud y longitud deben ser números.';return;}state.points.push(p);render();state.map.setView([p.lat,p.lon],14);$('#add-dialog').close();e.target.reset();};window.addEventListener('load',init);
+</script></body></html>
